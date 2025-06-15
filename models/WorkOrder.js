@@ -16,11 +16,12 @@ const TaskSchema = new mongoose.Schema({
   }
 });
 
-const PartSchema = new mongoose.Schema({
-  partName: {
-    type: String,
-    required: [true, 'Part name is required'],
-    trim: true
+// Define Part reference instead of nested schema
+const PartRefSchema = new mongoose.Schema({
+  partId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Part', // Reference to the Part model
+    required: [true, 'Part ID is required']
   },
   quantity: {
     type: Number,
@@ -49,7 +50,7 @@ const WorkOrderSchema = new mongoose.Schema({
   },
   assigneeType: {
     type: String,
-    enum: ['Individual', 'Team'],
+    enum: ['User', 'Team'],
     required: true
   },
   assignedTo: {
@@ -63,7 +64,7 @@ const WorkOrderSchema = new mongoose.Schema({
   },
   recurringWO: {
     type: String,
-    enum: ['Daily', 'Weekly', 'Every Month', 'Every 3 Months', 'Every 6 Months', 'Every year'],
+    enum: ['Daily', 'Weekly', 'Every Month', 'Every 3 Months', 'Every 6 Months', 'Every year', null],
     default: null
   },
   photoUrl: {
@@ -71,7 +72,7 @@ const WorkOrderSchema = new mongoose.Schema({
     default: null
   },
   tasks: [TaskSchema],
-  parts: [PartSchema],
+  parts: [PartRefSchema], // Use the reference schema
   vendor: {
     type: String,
     trim: true

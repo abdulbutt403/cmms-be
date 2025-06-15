@@ -30,10 +30,7 @@ const fileFilter = (req, file, cb) => {
   else cb(new Error('Unsupported file format'), false);
 };
 
-const upload = multer({
-  storage,
-  fileFilter
-});
+const upload = require('../middleware/multer')
 
 // === Work order validation ===
 const recurringOptions = ['Daily', 'Weekly', 'Every Month', 'Every 3 Months', 'Every 6 Months', 'Every year'];

@@ -6,9 +6,10 @@ const {
   createAsset, 
   updateAsset, 
   deleteAsset, 
-  getAssetsByBuilding
+  getAssetsByBuilding 
 } = require('../controllers/assetController');
 const { protect, authorize } = require('../middleware/auth');
+const upload = require('../middleware/multer');
 
 const router = express.Router();
 
@@ -18,30 +19,30 @@ const assetValidation = [
   check('building', 'Building is required').notEmpty(),
   check('category', 'Category is required').notEmpty(),
   check('status', 'Status is required').isIn(['Active', 'Inactive', 'Retired']),
-  check('serialNumber', 'Serial Number must be a string').optional().isString(),
-  check('modelNumber', 'Model Number must be a string').optional().isString(),
-  check('manufacturer', 'Manufacturer must be a string').optional().isString(),
-  check('purchaseDate', 'Purchase Date must be a valid date').optional().isISO8601(),
-  check('purchaseCost', 'Purchase Cost must be a positive number').optional().isFloat({ min: 0 }),
-  check('warrantyExpiryDate', 'Warranty Expiry Date must be a valid date').optional().isISO8601(),
-  check('assignee', 'Assignee type is required').isIn(['User', 'Team']),
+  check('serialNumber').optional().isString(),
+  check('modelNumber').optional().isString(),
+  check('manufacturer').optional().isString(),
+  check('purchaseDate').optional().isISO8601(),
+  check('purchaseCost').optional().isFloat({ min: 0 }),
+  check('warrantyExpiryDate').optional().isISO8601(),
+  check('assignee').isIn(['User', 'Team']),
   check('assignedTo', 'Assigned To is required').notEmpty()
 ];
 
 // Asset update validation
 const updateValidation = [
-  check('assetName', 'Asset Name is required').optional().notEmpty(),
-  check('building', 'Building is required').optional().notEmpty(),
-  check('category', 'Category is required').optional().notEmpty(),
-  check('status', 'Status must be valid').optional().isIn(['Active', 'Inactive', 'Retired']),
-  check('serialNumber', 'Serial Number must be a string').optional().isString(),
-  check('modelNumber', 'Model Number must be a string').optional().isString(),
-  check('manufacturer', 'Manufacturer must be a string').optional().isString(),
-  check('purchaseDate', 'Purchase Date must be a valid date').optional().isISO8601(),
-  check('purchaseCost', 'Purchase Cost must be a positive number').optional().isFloat({ min: 0 }),
-  check('warrantyExpiryDate', 'Warranty Expiry Date must be a valid date').optional().isISO8601(),
-  check('assignee', 'Assignee type must be valid').optional().isIn(['User', 'Team']),
-  check('assignedTo', 'Assigned To is required').optional().notEmpty()
+  check('assetName').optional().notEmpty(),
+  check('building').optional().notEmpty(),
+  check('category').optional().notEmpty(),
+  check('status').optional().isIn(['Active', 'Inactive', 'Retired']),
+  check('serialNumber').optional().isString(),
+  check('modelNumber').optional().isString(),
+  check('manufacturer').optional().isString(),
+  check('purchaseDate').optional().isISO8601(),
+  check('purchaseCost').optional().isFloat({ min: 0 }),
+  check('warrantyExpiryDate').optional().isISO8601(),
+  check('assignee').optional().isIn(['User', 'Team']),
+  check('assignedTo').optional().notEmpty()
 ];
 
 // Protect all routes
@@ -49,15 +50,10 @@ router.use(protect);
 
 // Routes limited to managers and admins
 router.get('/', authorize('manager', 'admin'), getAssets);
-
-router.post('/', authorize('manager', 'admin'), assetValidation, createAsset);
-
-// Routes with ID parameter
+router.post('/', authorize('manager', 'admin'), upload.single('assetPhoto'), assetValidation, createAsset);
 router.get('/:id', authorize('manager', 'admin'), getAsset);
-router.put('/:id', authorize('manager', 'admin'), updateValidation, updateAsset);
+router.put('/:id', authorize('manager', 'admin'), upload.single('assetPhoto'), updateValidation, updateAsset);
 router.delete('/:id', authorize('manager', 'admin'), deleteAsset);
 router.get('/building/:buildingId', authorize('manager', 'admin'), getAssetsByBuilding);
-
-
 
 module.exports = router;

@@ -63,6 +63,11 @@ const AssetSchema = new mongoose.Schema({
     unique: true,
     default: () => uuidv4() // Generate a unique QR code identifier
   },
+  assetPhoto: {
+  type: String,
+  trim: true,
+  default: ''
+  },
   createdAt: {
     type: Date,
     default: Date.now

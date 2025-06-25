@@ -12,7 +12,8 @@ const partSchema = new mongoose.Schema({
   manufacturer: { type: mongoose.Schema.Types.ObjectId, ref: 'Vendor' },
   purchaseDate: { type: Date },
   purchaseCost: { type: Number, min: 0 },
-  qrCode: { type: String, trim: true }
+  qrCode: { type: String, trim: true },
+  partPhoto: { type: String, trim: true, default: '' }, // 📸 Added
 }, { timestamps: true });
 
 module.exports = mongoose.model('Part', partSchema);

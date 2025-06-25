@@ -1,5 +1,7 @@
 const { validationResult } = require('express-validator');
 const Asset = require('../models/Asset');
+const fs = require('fs');
+const path = require('path');
 
 exports.getAssets = async (req, res) => {
   try {
@@ -7,7 +9,7 @@ exports.getAssets = async (req, res) => {
     const assets = await Asset.find(query)
       .populate('building', 'buildingName')
       .sort('assetName')
-      .select('-createdAt -updatedAt -__v');
+      .select('-__v');
     res.status(200).json({ success: true, count: assets.length, data: assets });
   } catch (error) {
     console.error('Get assets error:', error.message);
@@ -19,7 +21,7 @@ exports.getAsset = async (req, res) => {
   try {
     const asset = await Asset.findById(req.params.id)
       .populate('building', 'buildingName')
-      .select('-createdAt -updatedAt -__v');
+      .select('-__v');
     if (!asset) {
       return res.status(404).json({ success: false, message: 'Asset not found' });
     }
@@ -64,6 +66,8 @@ exports.createAsset = async (req, res) => {
       });
     }
 
+    const assetPhoto = req.file?.filename ? `/uploads/assets/${req.file.filename}` : '';
+
     const asset = await Asset.create({
       assetName,
       building,
@@ -78,6 +82,7 @@ exports.createAsset = async (req, res) => {
       warrantyExpiryDate,
       assignee,
       assignedTo,
+      assetPhoto,
       createdBy: req.user._id
     });
 
@@ -104,7 +109,11 @@ exports.updateAsset = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized to update this asset' });
     }
 
-    if (req.body.assetName && req.body.building && (req.body.assetName !== asset.assetName || req.body.building !== asset.building.toString())) {
+    if (
+      req.body.assetName &&
+      req.body.building &&
+      (req.body.assetName !== asset.assetName || req.body.building !== asset.building.toString())
+    ) {
       const assetExists = await Asset.findOne({ assetName: req.body.assetName, building: req.body.building });
       if (assetExists) {
         return res.status(400).json({
@@ -144,6 +153,10 @@ exports.updateAsset = async (req, res) => {
     if (assignee) asset.assignee = assignee;
     if (assignedTo) asset.assignedTo = assignedTo;
 
+    if (req.file?.filename) {
+      asset.assetPhoto = `/uploads/assets/${req.file.filename}`;
+    }
+
     await asset.save();
 
     res.status(200).json({ success: true, data: asset });
@@ -164,6 +177,16 @@ exports.deleteAsset = async (req, res) => {
       return res.status(403).json({ success: false, message: 'Not authorized to delete this asset' });
     }
 
+    // 🧹 Delete asset photo file from server if it exists
+    if (asset.assetPhoto) {
+      const photoPath = path.join(__dirname, '..', 'public', asset.assetPhoto);
+      fs.unlink(photoPath, (err) => {
+        if (err && err.code !== 'ENOENT') {
+          console.error('Error deleting asset photo:', err.message);
+        }
+      });
+    }
+
     await asset.remove();
 
     res.status(200).json({ success: true, data: {} });
@@ -179,7 +202,7 @@ exports.getAssetsByBuilding = async (req, res) => {
     const assets = await Asset.find({ building: req.params.buildingId })
       .populate('building', 'buildingName')
       .sort('assetName')
-      .select('-createdAt -updatedAt -__v');
+      .select('-__v');
     res.status(200).json({ success: true, count: assets.length, data: assets });
   } catch (error) {
     console.error('Get assets by building error:', error.message);

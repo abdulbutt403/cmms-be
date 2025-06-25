@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Team = require('../models/Team');
 const AssetUsageHistory = require('../models/AssetUsageHistory');
 const Part = require('../models/Parts');
+const { default: mongoose } = require('mongoose');
 
 // @desc    Get all work orders
 // @route   GET /api/workorders
@@ -272,33 +273,21 @@ exports.createWorkOrder = [
         recurringWO,
         tasks,
         vendor,
+        parts, // Directly use parts from req.body
       } = req.body;
 
-      // Reconstruct parts array from multipart form data
-      const parts = [];
-      const partIds = Object.keys(req.body)
-        .filter((key) => key.startsWith("parts[") && key.endsWith("][partId]"))
-        .map((key) => key.replace("parts[", "").replace("][partId]", ""));
-      partIds.forEach((index) => {
-        const partIdKey = `parts[${index}][partId]`;
-        const quantityKey = `parts[${index}][quantity]`;
-        if (req.body[partIdKey] && req.body[quantityKey] !== undefined) {
-          parts.push({
-            partId: req.body[partIdKey],
-            quantity: parseInt(req.body[quantityKey]) || 0,
-          });
-        }
-      });
+      // Use parts directly if provided, fall back to empty array if undefined
+      const parsedParts = Array.isArray(parts) ? parts : [];
 
-      // Validate parts structure in controller
-      if (parts.length > 0) {
-        const isValid = parts.every(
+      // Validate parts structure
+      if (parsedParts.length > 0) {
+        const isValid = parsedParts.every(
           (part) =>
             part.partId &&
             typeof part.partId === "string" &&
             mongoose.Types.ObjectId.isValid(part.partId) &&
-            !isNaN(part.quantity) &&
-            part.quantity > 0
+            !isNaN(parseInt(part.quantity)) &&
+            parseInt(part.quantity) > 0
         );
         if (!isValid) {
           return res.status(400).json({
@@ -335,7 +324,7 @@ exports.createWorkOrder = [
         isRecurring: isRecurring === "true" || isRecurring === true,
         recurringWO: recurringWO || null,
         tasks: parsedTasks,
-        parts,
+        parts: parsedParts, // Use parsedParts
         vendor,
         submittedBy: req.user._id,
         status: "Open",
@@ -349,7 +338,7 @@ exports.createWorkOrder = [
 
       const workOrder = await WorkOrder.create(newWorkOrder);
 
-      for (const part of parts) {
+      for (const part of parsedParts) {
         const dbPart = await Part.findById(part.partId);
         if (!dbPart) {
           return res.status(400).json({

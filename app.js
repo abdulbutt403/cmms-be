@@ -20,6 +20,8 @@ const app = express();
 // Body parser
 app.use(express.json());
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Enable CORS
 app.use(cors());
 

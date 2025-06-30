@@ -66,7 +66,7 @@ exports.createAsset = async (req, res) => {
       });
     }
 
-    const assetPhoto = req.file?.filename ? `/uploads/assets/${req.file.filename}` : '';
+    const assetPhoto = req.file?.filename ? `/uploads/${req.file.filename}` : '';
 
     const asset = await Asset.create({
       assetName,
@@ -154,7 +154,7 @@ exports.updateAsset = async (req, res) => {
     if (assignedTo) asset.assignedTo = assignedTo;
 
     if (req.file?.filename) {
-      asset.assetPhoto = `/uploads/assets/${req.file.filename}`;
+      asset.assetPhoto = `/uploads/${req.file.filename}`;
     }
 
     await asset.save();

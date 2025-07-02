@@ -187,7 +187,7 @@ exports.deleteAsset = async (req, res) => {
       });
     }
 
-    await asset.remove();
+    await asset.deleteOne();
 
     res.status(200).json({ success: true, data: {} });
   } catch (error) {

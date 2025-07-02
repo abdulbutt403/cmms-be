@@ -1,5 +1,7 @@
 const { validationResult } = require('express-validator');
 const Building = require('../models/Building');
+const Asset = require('../models/Asset');
+const Part = require('../models/Parts');
 
 // @desc    Get all buildings
 // @route   GET /api/buildings
@@ -186,7 +188,11 @@ exports.deleteBuilding = async (req, res) => {
       });
     }
 
-    await building.remove();
+    // Delete all assets and parts related to this building
+    await Asset.deleteMany({ building: building._id });
+    await Part.deleteMany({ building: building._id });
+
+    await building.deleteOne();
 
     res.json({
       success: true,

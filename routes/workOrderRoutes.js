@@ -92,4 +92,10 @@ router.put(
   updateWorkOrder
 );
 
+router.delete(
+  '/:id',
+  authorize('manager', 'admin'),
+  require('../controllers/workOrderController').deleteWorkOrder
+);
+
 module.exports = router;

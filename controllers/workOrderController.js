@@ -497,7 +497,7 @@ exports.deleteWorkOrder = async (req, res) => {
       });
     }
 
-    await workOrder.remove();
+    await workOrder.deleteOne();
 
     res.json({
       success: true,

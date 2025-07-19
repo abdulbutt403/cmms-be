@@ -77,7 +77,7 @@ exports.createUser = async (req, res) => {
   }
   
   try {
-    const { email, password, firstName, lastName, jobTitle, userRole } = req.body;
+    const { email, password, firstName, lastName, phoneNumber, alertNotification, jobTitle, userRole } = req.body;
 
     console.log('Creating user:', {
       email,
@@ -102,6 +102,8 @@ exports.createUser = async (req, res) => {
       password,
       firstName,
       lastName,
+      phoneNumber,
+      alertNotification,
       jobTitle,
       userRole: userRole || 'technician',
       createdBy: req.user._id,
@@ -163,10 +165,12 @@ exports.updateUser = async (req, res) => {
     }
     
     // Update fields
-    const { firstName, lastName, jobTitle, userRole, email } = req.body;
+    const { firstName, lastName, phoneNumber, alertNotification, jobTitle, userRole, email } = req.body;
     
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
+    if (phoneNumber) user.phoneNumber = phoneNumber;
+    if (alertNotification) user.alertNotification = alertNotification;
     if (jobTitle) user.jobTitle = jobTitle;
     if (userRole) user.userRole = userRole;
     if (email) user.email = email;
@@ -216,7 +220,7 @@ exports.deleteUser = async (req, res) => {
       });
     }
     
-    await user.remove();
+    await user.deleteOne();
     
     res.json({
       success: true,

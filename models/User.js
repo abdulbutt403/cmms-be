@@ -26,6 +26,18 @@ const UserSchema = new mongoose.Schema({
     required: [true, 'Last name is required'],
     trim: true
   },
+  phoneNumber: {
+    type: String,
+    required: [true, 'Phone number is required'],
+    trim: true
+  },
+  alertNotification: {
+    type: String,
+    required: [true, 'Alert notification email is required'],
+    trim: true,
+    lowercase: true,
+    match: [/^\S+@\S+\.\S+$/, 'Please use a valid email address']
+  },
   jobTitle: {
     type: String,
     required: false,

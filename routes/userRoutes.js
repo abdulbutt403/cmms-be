@@ -20,7 +20,9 @@ const userValidation = [
   check('jobTitle', 'Job title is required').optional(),
   check('userRole', 'User role must be technician, manager, or admin')
     .optional()
-    .isIn(['technician', 'manager', 'admin'])
+    .isIn(['technician', 'manager', 'admin']),
+  check('phoneNumber', 'Phone number is required').notEmpty(),
+  check('alertNotification', 'Alert notification email is required').isEmail(),
 ];
 
 // User update validation
@@ -32,7 +34,9 @@ const updateValidation = [
   check('jobTitle', 'Job title is required').optional(),
   check('userRole', 'User role must be technician, manager, or admin')
     .optional()
-    .isIn(['technician', 'manager', 'admin'])
+    .isIn(['technician', 'manager', 'admin']),
+  check('phoneNumber', 'Phone number is required').optional(),
+  check('alertNotification', 'Alert notification email is required').optional().isEmail(),
 ];
 
 // Protect all routes

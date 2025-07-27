@@ -319,7 +319,7 @@ exports.createWorkOrder = [
         description,
         building,
         asset,
-        assigneeType,
+        assigneeType: assigneeType === "Individual" ? "User" : "Team",
         assignedTo,
         isRecurring: isRecurring === "true" || isRecurring === true,
         recurringWO: recurringWO || null,

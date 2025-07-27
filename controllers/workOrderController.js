@@ -310,6 +310,8 @@ exports.createWorkOrder = [
 
       const parsedTasks = tasks ? (typeof tasks === "string" ? JSON.parse(tasks) : tasks) : [];
 
+      console.log("parsedParts", parsedParts);
+
       const newWorkOrder = {
         title,
         startDate,
@@ -335,6 +337,8 @@ exports.createWorkOrder = [
       } else {
         console.log("No file uploaded or upload failed");
       }
+
+      console.log("newWorkOrder", newWorkOrder);
 
       const workOrder = await WorkOrder.create(newWorkOrder);
 

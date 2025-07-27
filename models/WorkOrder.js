@@ -23,6 +23,11 @@ const PartRefSchema = new mongoose.Schema({
     ref: 'Part', // Reference to the Part model
     required: [true, 'Part ID is required']
   },
+  partName: {
+    type: String,
+    required: [true, 'Part name is required'],
+    trim: true
+  },
   quantity: {
     type: Number,
     required: [true, 'Quantity is required'],
